@@ -81,7 +81,11 @@
             </div>
         </div>
     </div>
+
+
     <router-view></router-view>
+
+    
     <div class="footer">
                 <div class="section">
                     <div class="foot-nav">
@@ -125,6 +129,6 @@ export default {
 
 <style>
   
-  @import url('./assets/statics/site/css/style.css');
+  /* @import url('./assets/statics/site/css/style.css'); */
   
 </style>
