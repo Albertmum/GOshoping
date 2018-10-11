@@ -84,11 +84,11 @@
                                         </div>
                                         <div class="conn-box">
                                             <div class="editor">
-                                                <textarea v-model="inputvalue" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！">{{inputvalue}}</textarea>
+                                                <textarea @keyup.enter="addcomment" v-model.trim="inputvalue" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！">{{inputvalue}}</textarea>
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                             <div class="subcon">
-                                                <input id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
+                                                <input  @click="addcomment" id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                         </div>
@@ -102,7 +102,7 @@
                                             <div class="inner-box">
                                                 <div class="info">
                                                     <span>{{item2.user_name}}</span>
-                                                    <span>{{item2.reply_time}}</span>
+                                                    <span>{{item2.reply_time|beautifulTime}}</span>
                                                 </div>
                                                 <p>{{item2.content}}</p>
                                             </div>
@@ -110,7 +110,7 @@
                                        
                                     </ul>
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                                        <Page :total="100" show-elevator />
+                                        <Page placement='top' @on-change='pageChange' show-elevator show-sizer :total="totalcount" show-elevator />
                                     </div>
                                 </div>
                             </div>
@@ -154,23 +154,39 @@ export default {
     name:'goodsinfo',
     data:function(){
         return{
+            //商品id
             goodsid:'',
+            //商品信息
             goodsinfo:[],
+            //热卖信息数组
             hotgoodslist:[],
+            //内容详情页
             imglist:[],
+            //评论详情
             message:[],
+            //定义一个bol来决定 评论有没有,有就显示,隐藏暂无的信息
             boll:true,
+            //默认的购买数量
             buyNum:1,
+            //选中的
             selectedindex:1,
-            inputvalue:''
+            //textarea里面的输入内容
+            inputvalue:'',
+            //总的评论条数
+            totalcount:0,
+            //一页的容量
+            pageSize:5,
+            //页码
+            pageIndex:1
             
         }
     },
      methods: {
+         //购买数量改变的事件
       handleChange(value) {
         console.log(value);
       },
-            getgoodinfo(){
+            getgoodinfo(){//获取商品信息的事件函数
              this.$axios.get("/site/goods/getgoodsinfo/"+this.goodsid).then(res=>{
              this.goodsinfo=res.data.message.goodsinfo;
             this.hotgoodslist=res.data.message.hotgoodslist;
@@ -178,27 +194,49 @@ export default {
            
         })
             },
-            getmessage(){
-                 this.$axios.get("/site/comment/getbypage/goods/"+this.goodsid+'?pageIndex=1&pageSize=10').then(res=>{
+            getmessage(){//获取评论的事件函数
+                 this.$axios.get("/site/comment/getbypage/goods/"+this.goodsid+'?pageIndex='+this.pageIndex+'&pageSize='+this.pageSize).then(res=>{
+                      this.totalcount = res.data.totalcount;
+                 this.pageIndex = res.data.pageIndex;
+                this.pageSize = res.data.pageSize;
             
             this.message=res.data.message;
-            if(this.message.length>0){
+            if(this.message.length>0){//如果有评论则改变boll为false隐藏暂无评论的p标签
                 this.boll=false;
             }
            
         })
-            }
+            },
+            addcomment(){//添加评论的事件
+                this.goodsid=this.$route.params.goodsid;
+                if(this.inputvalue==""){
+                    alert('请输入内容');
+                    return;
+                }
+                this.$axios.post("site/validate/comment/post/goods/"+this.goodsid,{"commenttxt":this.inputvalue }).then(res=>{
+                
+                 this.inputvalue='';
+                 this.getmessage();
+        })
+            },
+             pageChange(pageNum){//页码的点击函数
+        
+        // 修改页码
+        this.pageIndex = pageNum;
+        // 重新发请求
+        this.getmessage();
+    }
     },
-    created(){
+    created(){//生命周期函数,在页面渲染完毕之后
         this.goodsid=this.$route.params.goodsid;
        
        this.getgoodinfo();
         this.getmessage();
-        this.$axios.get("site/validate/comment/post/goods/"+this.goodsid);
+        
         
        
     },
-    watch:{
+    watch:{//路由改变事件函数
          '$route' (to, from) {
              this.goodsid=to.params.goodsid;
              this.getgoodinfo();
