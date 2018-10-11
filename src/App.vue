@@ -1,6 +1,7 @@
 <template>
     <div id="app">
-     <div class="header">
+        
+        <div class="header">
         <!-- 1.0 导航栏头部 -->
         <div class="head-top">
             <div class="section">
@@ -10,13 +11,15 @@
                     <a target="_blank" href="#"></a>
                 </div>
                 <div id="menu" class="right-box">
-                    <span style="display: none;">
-                        <a href="" class="">登录</a>
+                    <span >
+                        <router-link to="/login"  >登录
+                        <!-- <a href="" class="">登录</a> -->
+                        </router-link>
                         <strong>|</strong>
                         <a href="" class="">注册</a>
                         <strong>|</strong>
                     </span>
-                    <span>
+                    <span style="display: none;">
                         <a href="" class="">会员中心</a>
                         <strong>|</strong>
                         <a>退出</a>
@@ -25,12 +28,13 @@
                     <a href="" class="">
                         <i class="iconfont icon-cart"></i>购物车(
                         <span id="shoppingCartCount">
-                            <span>4</span>
+                            <span>0</span>
                         </span>)</a>
                 </div>
             </div>
         </div>
-
+        <Affix>
+        <div class="demo-affix" >
         <!-- 2.0 导航条 -->
         <div class="head-nav">
             <div class="section">
@@ -80,7 +84,11 @@
                 </div>
             </div>
         </div>
+         </div>
+    </Affix>
     </div>
+   
+     
 
 
     <router-view></router-view>
@@ -121,31 +129,39 @@
 </template>
 
 <script>
-import $ from 'jquery';
+import $ from "jquery";
 export default {
   name: "app",
-  mounted(){
-      $("#menu2 li a").wrapInner( '<span class="out"></span>' );
-	$("#menu2 li a").each(function() {
-		$( '<span class="over">' +  $(this).text() + '</span>' ).appendTo( this );
-	});
+  mounted() {
+    $("#menu2 li a").wrapInner('<span class="out"></span>');
+    $("#menu2 li a").each(function() {
+      $('<span class="over">' + $(this).text() + "</span>").appendTo(this);
+    });
 
-	$("#menu2 li a").hover(function() {
-		$(".out",	this).stop().animate({'top':	'48px'},	300); // move down - hide
-		$(".over",	this).stop().animate({'top':	'0px'},		300); // move down - show
-
-	}, function() {
-		$(".out",	this).stop().animate({'top':	'0px'},		300); // move up - show
-		$(".over",	this).stop().animate({'top':	'-48px'},	300); // move up - hide
-	});
+    $("#menu2 li a").hover(
+      function() {
+        $(".out", this)
+          .stop()
+          .animate({ top: "48px" }, 300); // move down - hide
+        $(".over", this)
+          .stop()
+          .animate({ top: "0px" }, 300); // move down - show
+      },
+      function() {
+        $(".out", this)
+          .stop()
+          .animate({ top: "0px" }, 300); // move up - show
+        $(".over", this)
+          .stop()
+          .animate({ top: "-48px" }, 300); // move up - hide
+      }
+    );
   }
-  
 };
 </script>
 
 <style>
-  
-  .menuhd ul li a span.over{
-      background-color:hotpink ;
-  }
+.menuhd ul li a span.over {
+  background-color: hotpink;
+}
 </style>

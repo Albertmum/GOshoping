@@ -84,7 +84,7 @@
                                         </div>
                                         <div class="conn-box">
                                             <div class="editor">
-                                                <textarea @keyup.enter="addcomment" v-model.trim="inputvalue" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！">{{inputvalue}}</textarea>
+                                                <textarea @keyup.enter="addcomment" v-model.trim="inputvalue" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                             <div class="subcon">
@@ -110,7 +110,7 @@
                                        
                                     </ul>
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                                        <Page placement='top' @on-change='pageChange' show-elevator show-sizer :total="totalcount" show-elevator />
+                                        <Page placement='top' @on-change='pageChange' show-elevator show-sizer :total="totalcount"  />
                                     </div>
                                 </div>
                             </div>
@@ -210,13 +210,21 @@ export default {
             addcomment(){//添加评论的事件
                 this.goodsid=this.$route.params.goodsid;
                 if(this.inputvalue==""){
-                    alert('请输入内容');
+                    this.$message({
+                        message:'请输入评论内容!',
+                        type: 'warning'
+                    })
                     return;
                 }
                 this.$axios.post("site/validate/comment/post/goods/"+this.goodsid,{"commenttxt":this.inputvalue }).then(res=>{
                 
                  this.inputvalue='';
                  this.getmessage();
+                  this.$message({
+                        message:'评论成功!',
+                        type: 'success'
+                    })
+                 
         })
             },
              pageChange(pageNum){//页码的点击函数

@@ -6,6 +6,8 @@ import VueRouter from 'vue-router';
 import index from './components/index.vue';
 // 引入详情页的视口
 import goodsinfo from './components/goodsinfo';
+//引入登陆的视口
+import login from './components/login.vue';
 // 用VUE调用一下use router
 Vue.use(VueRouter);
 
@@ -59,6 +61,9 @@ const routes = [{
   path: '/goodsinfo/:goodsid',
   name: 'goodsinfo',
   component: goodsinfo
+},{
+  path:'/login',
+  component:login
 }
 ];
 //实例化路由对象
