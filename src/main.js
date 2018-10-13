@@ -17,7 +17,42 @@ import './assets/statics/site/css/style.css';
 // 引入懒加载VUE
 import lazyload from "vue-lazyload";
 
+//引入VUEX
+import Vuex from "vuex";
+Vue.use(Vuex);
+const store = new Vuex.Store({
+  state: {
+    shopCartData:JSON.parse(localStorage.getItem('cartData'))||{}
+  },
+  mutations: {
+    addCart(state,opt){
+      if(state.shopCartData[opt.id]==undefined){
+        // 没有 增加这个key
+        // state.shopCartData[opt.id] = opt.buyCount
+        // 为了让Vue可以观察到这个数据的改变 我们需要使用 Vue.set进行设置
+        // Vue.set(obj, 'newProp', 123)
+        Vue.set(state.shopCartData,opt.id,opt.buyCount);
+      }else{
+        // 有 累加 对象也支持 对象[属性名]
+        state.shopCartData[opt.id] += opt.buyCount;
+      }
+    }
+  },
+  getters:{
+    cartGoodCount(state){
+      let totalCount=0;
+      for(const key in state.shopCartData){
+        totalCount+=state.shopCartData[key]
+      };
+      return totalCount;
+    }
+  }
+})
 
+//在页面关闭或者刷新的时候存储加入购物车的数量和商品ID
+window.onbeforeunload=function(){
+  window.localStorage.setItem('cartData', JSON.stringify(store.state.shopCartData))
+} 
 
 Vue.use(lazyload, {
 
@@ -41,6 +76,11 @@ Vue.use(iview);
 import axios from "axios";
 // //引入moment
 import moment from "moment";
+
+//引入放大镜的插件
+import ProductZoomer from 'vue-product-zoomer'
+
+Vue.use(ProductZoomer)
 
 // 抽取路由基地址
 axios.defaults.baseURL = "http://111.230.232.110:8899/";
@@ -83,6 +123,7 @@ Vue.filter('beautifulTime',
 new Vue({
   el: '#app',
   render: h => h(App),
-  router
+  router,
+  store
 })
 

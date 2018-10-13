@@ -28,11 +28,12 @@
                     <a href="" class="">
                         <i class="iconfont icon-cart"></i>购物车(
                         <span id="shoppingCartCount">
-                            <span>0</span>
+                            <span>{{$store.getters.cartGoodCount}}</span>
                         </span>)</a>
                 </div>
             </div>
         </div>
+
         <Affix>
         <div class="demo-affix" >
         <!-- 2.0 导航条 -->
