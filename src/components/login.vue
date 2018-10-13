@@ -44,7 +44,7 @@ export default {
     },
     methods:{
         signIn(){
-            this.$axios.post("site/account/login",{username:this.inputusername,password:this.inputpassword}).then(res=>{
+            this.$axios.post("site/account/login",{user_name:this.inputusername,password:this.inputpassword}).then(res=>{
                 console.log(res);
                 this.$message({
                     message:res.data.message,

@@ -54,7 +54,7 @@
                                     <th width="104" align="left">金额(元)</th>
                                     <th width="54" align="center">操作</th>
                                 </tr>
-                                <tr>
+                                <tr v-show="cartData.length==0">
                                     <td colspan="10">
                                         <div class="msg-tips">
                                             <div class="icon warning">
@@ -68,6 +68,32 @@
                                         </div>
                                     </td>
                                 </tr>
+                            
+                                <!-- 如果有数据的时候显示的数据 -->
+                                 <tr v-show="cartData.length!=0" v-for="(item,index) in cartData" :key="item.id">
+                                    <td width="48" align="center">
+                                        <el-switch v-model="item.isSelected"  active-color="#409eff" inactive-color="#555555">
+                                        </el-switch>
+                                    </td>
+                                    <td align="left" colspan="2">
+                                        <div class="shopInfo"><img :src="item.img_url" alt="" style="width: 50px; height: 50px; margin-right: 10px;">
+                                            <span>{{item.title}}</span>
+                                        </div>
+                                    </td>
+                                    <td width="220" align="left">{{item.sell_price}}</td>
+                                    <td width="104" align="center">
+
+                                        <el-input-number v-model="item.buycount"  :min="1" :max="99" label="描述文字"></el-input-number>
+
+                                    </td>
+                                    <td width="104" align="left">{{item.buycount*item.sell_price}}</td>
+                                    <td width="54" align="center">
+                                        <a  href="javascript:void(0)">删除</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                
+                                <!-- 购物车底部价格综合 -->
                                 <tr>
                                     <th align="right" colspan="8">
                                         已选择商品
@@ -84,7 +110,11 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+                            <button class="submit" >
+                            <router-link to='/payOrder'>
+                            立即结算
+                            </router-link>
+                        </button>
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -95,10 +125,57 @@
 
 </div>
 </template>
-<script>
+<script type='text/ecmascript-6'>
 
 export default {
+    name : 'buyCar',
+    data(){
+        return{
+            goodsid:'',
+            cartData:[],
+            code:true
+           
+        }
+    },
+    methods:{
 
+    },
+    beforeCreate(){
+         this.$axios.get('site/account/islogin').then(res=>{
+             console.log(res)
+             if(res.data.code=='nologin'){
+                this.$message({
+                     message:'您还没有登陆,请先登陆再查看购物车哦!',
+                     type:'warning'
+                 });
+                this.code=false;
+             }
+        });
+
+        
+
+    },
+    created(){
+        let goodsObj=JSON.parse(window.localStorage.getItem('cartData'));
+        let keyArr=[];
+       for(const key in goodsObj){
+            
+            keyArr.push(key);
+       };
+      let strKey=keyArr.join(',')
+       this.goodsid=strKey;
+
+
+        this.$axios.get('site/comment/getshopcargoods/'+this.goodsid).then(res=>{
+            //console.log(res);
+            this.cartData=res.data.message;
+
+            console.log(this.cartData)
+        })
+    },
+    watch:{
+         
+    }
 }
 
 

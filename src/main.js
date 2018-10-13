@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import './assets/statics/cavars.js'
 import App from './App.vue'
 //  引入路由
 import VueRouter from 'vue-router';
@@ -8,6 +9,12 @@ import index from './components/index.vue';
 import goodsinfo from './components/goodsinfo';
 //引入登陆的视口
 import login from './components/login.vue';
+//引入购物车的视口文件
+import buyCar from './components/buyCar.vue';
+//引入支付订单的页面
+import payOrder from './components/payOrder.vue';
+//引入订单确认夜店
+import confirmOrder from './components/confirmOrder.vue';
 // 用VUE调用一下use router
 Vue.use(VueRouter);
 
@@ -21,43 +28,43 @@ import lazyload from "vue-lazyload";
 import Vuex from "vuex";
 Vue.use(Vuex);
 const store = new Vuex.Store({
-  state: {
-    shopCartData:JSON.parse(localStorage.getItem('cartData'))||{}
-  },
-  mutations: {
-    addCart(state,opt){
-      if(state.shopCartData[opt.id]==undefined){
-        // 没有 增加这个key
-        // state.shopCartData[opt.id] = opt.buyCount
-        // 为了让Vue可以观察到这个数据的改变 我们需要使用 Vue.set进行设置
-        // Vue.set(obj, 'newProp', 123)
-        Vue.set(state.shopCartData,opt.id,opt.buyCount);
-      }else{
-        // 有 累加 对象也支持 对象[属性名]
-        state.shopCartData[opt.id] += opt.buyCount;
-      }
+    state: {
+        shopCartData: JSON.parse(localStorage.getItem('cartData')) || {}
+    },
+    mutations: {
+        addCart(state, opt) {
+            if (state.shopCartData[opt.id] == undefined) {
+                // 没有 增加这个key
+                // state.shopCartData[opt.id] = opt.buyCount
+                // 为了让Vue可以观察到这个数据的改变 我们需要使用 Vue.set进行设置
+                // Vue.set(obj, 'newProp', 123)
+                Vue.set(state.shopCartData, opt.id, opt.buyCount);
+            } else {
+                // 有 累加 对象也支持 对象[属性名]
+                state.shopCartData[opt.id] += opt.buyCount;
+            }
+        }
+    },
+    getters: {
+        cartGoodCount(state) {
+            let totalCount = 0;
+            for (const key in state.shopCartData) {
+                totalCount += state.shopCartData[key]
+            };
+            return totalCount;
+        }
     }
-  },
-  getters:{
-    cartGoodCount(state){
-      let totalCount=0;
-      for(const key in state.shopCartData){
-        totalCount+=state.shopCartData[key]
-      };
-      return totalCount;
-    }
-  }
 })
 
 //在页面关闭或者刷新的时候存储加入购物车的数量和商品ID
-window.onbeforeunload=function(){
-  window.localStorage.setItem('cartData', JSON.stringify(store.state.shopCartData))
-} 
+window.onbeforeunload = function() {
+    window.localStorage.setItem('cartData', JSON.stringify(store.state.shopCartData))
+}
 
 Vue.use(lazyload, {
 
-  error: require('./assets/error.jpg'),
-  loading: require('./assets/loading.jpg'),
+    error: require('./assets/error.jpg'),
+    loading: require('./assets/loading.jpg'),
 
 })
 
@@ -79,8 +86,11 @@ import moment from "moment";
 
 //引入放大镜的插件
 import ProductZoomer from 'vue-product-zoomer'
-
 Vue.use(ProductZoomer)
+//引入省市联动的插件
+import VueAreaLinkage from 'vue-area-linkage';
+import 'vue-area-linkage/dist/index.css';
+Vue.use(VueAreaLinkage)
 
 // 抽取路由基地址
 axios.defaults.baseURL = "http://111.230.232.110:8899/";
@@ -91,39 +101,58 @@ Vue.prototype.$axios = axios;
 
 //给路由添加规则,
 const routes = [{
-  path: '/',
-  component: index
-},
-{
-  path: '/index',
-  component: index
-}, {
-  path: '/goodsinfo/:goodsid',
-  name: 'goodsinfo',
-  component: goodsinfo
-},{
-  path:'/login',
-  component:login
-}
+        path: '/',
+        component: index
+    },
+    {
+        path: '/index',
+        component: index
+    }, {
+        path: '/goodsinfo/:goodsid',
+        name: 'goodsinfo',
+        component: goodsinfo
+    }, {
+        path: '/login',
+        component: login
+    },
+    {
+        path: '/buyCar',
+        // redirect: to=>{
+        //  console.log(this.code)
+        // },
+        component: buyCar
+
+    },
+    {
+        path: '/payOrder',
+        component: payOrder
+    },
+    {
+      path:'/confirmOrder',
+      component:confirmOrder
+    }
 ];
+
+
+
+
 //实例化路由对象
 const router = new VueRouter({
-  routes
+    routes
 })
 
 Vue.config.productionTip = false;
 
 Vue.filter('beautifulTime',
-  function (value) {
-    return moment(value).format("YYYY年MM月DD日");
-  }
+    function(value) {
+        return moment(value).format("YYYY年MM月DD日");
+    }
 )
 
 // 实例化VUE和挂载路由到VUE上面
 new Vue({
-  el: '#app',
-  render: h => h(App),
-  router,
-  store
+    el: '#app',
+    render: h => h(App),
+    router,
+    store
 })
-
