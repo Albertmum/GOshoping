@@ -13,8 +13,8 @@
                 <div class="wrap-box">
                     <div class="left-925">
                         <div class="goods-box clearfix">
-                            <div class="pic-box">
-                                <ProductZoomer v-if=" images.normal_size.length!=0 " :base-images="images" :base-zoomer-options="zoomerOptions" />
+                            <div class="pic-box" v-if=" images.normal_size.length!=0 " >
+                                <ProductZoomer :base-images="images" :base-zoomer-options="zoomerOptions" />
                             </div>
                             <div class="goods-spec">
                                 <h1>{{goodsinfo.title}}</h1>
@@ -173,11 +173,7 @@ export default {
             //页码
             pageIndex: 1,
             images: {
-
-                normal_size: [{
-                    id:1,
-                    url:'www.baidu.com'
-                }]
+                normal_size: []
             },
             zoomerOptions: {
                 zoomFactor: 4,

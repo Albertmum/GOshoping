@@ -83,12 +83,12 @@
                                     <td width="220" align="left">{{item.sell_price}}</td>
                                     <td width="104" align="center">
 
-                                        <el-input-number v-model="item.buycount"  :min="1" :max="99" label="描述文字"></el-input-number>
+                                        <el-input-number @change='changeCount(item.id,$event)' v-model="item.buycount"  :min="1" :max="99" label="描述文字"></el-input-number>
 
                                     </td>
                                     <td width="104" align="left">{{item.buycount*item.sell_price}}</td>
                                     <td width="54" align="center">
-                                        <a  href="javascript:void(0)">删除</a>
+                                       <el-button type="text" @click="delOne(item.id)">删除</el-button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -97,9 +97,9 @@
                                 <tr>
                                     <th align="right" colspan="8">
                                         已选择商品
-                                        <b class="red" id="totalQuantity">0</b> 件 &nbsp;&nbsp;&nbsp; 商品总金额（不含运费）：
+                                        <b class="red" id="totalQuantity">{{selsetNum}}</b> 件 &nbsp;&nbsp;&nbsp; 商品总金额（不含运费）：
                                         <span class="red">￥</span>
-                                        <b class="red" id="totalAmount">0</b>元
+                                        <b class="red" id="totalAmount">{{selsetPrice}}</b>元
                                     </th>
                                 </tr>
                             </tbody>
@@ -131,18 +131,52 @@ export default {
     name : 'buyCar',
     data(){
         return{
-            goodsid:'',
+            //购物车详情
             cartData:[],
+            // 登陆状态
             code:true
            
         }
     },
     methods:{
+        changeCount(id,newCount){
+            // console.log(id,newCount)
+            this.$store.commit('updateBuyCount',{
+                id,newCount
+            })
+        },
+        delOne(id) {
+        this.$confirm('您确定不需要这个宝贝吗?', '温馨提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            //删除VUEX中的某个值
+            this.$store.commit('delGood',id)
+            //删除页面上的商品
+            this.cartData.forEach((v,i)=>{
+            if(v.id==id){
+                this.cartData.splice(i,1)
+            }
+          })
+
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      }
 
     },
     beforeCreate(){
          this.$axios.get('site/account/islogin').then(res=>{
-             console.log(res)
+             // console.log(res)
              if(res.data.code=='nologin'){
                 this.$message({
                      message:'您还没有登陆,请先登陆再查看购物车哦!',
@@ -156,25 +190,51 @@ export default {
 
     },
     created(){
-        let goodsObj=JSON.parse(window.localStorage.getItem('cartData'));
-        let keyArr=[];
-       for(const key in goodsObj){
-            
-            keyArr.push(key);
-       };
-      let strKey=keyArr.join(',')
-       this.goodsid=strKey;
+        let ids ='';
+         for( const key in this.$store.state.shopCartData){
+          
+            ids+=key;
+            ids+=','
+         }
+          ids=ids.slice(0,-1)
+        
+        this.$axios.get('site/comment/getshopcargoods/'+ids).then(res=>{
+           console.log(res);
+           res.data.message.forEach(v=>{
+            for (let value in this.$store.state.shopCartData) {
+                v.buycount=this.$store.state.shopCartData[v.id]
+                v.isSelected=true
+            }
 
-
-        this.$axios.get('site/comment/getshopcargoods/'+this.goodsid).then(res=>{
-            //console.log(res);
-            this.cartData=res.data.message;
-
-            console.log(this.cartData)
+           })
+           this.cartData=res.data.message;
+           // console.log(this.cartData)
+           
         })
     },
     watch:{
-         
+
+    },
+    computed:{
+        selsetNum(){
+            let num= 0;
+            this.cartData.forEach(v=>{
+                if(v.isSelected==true){
+                    num+=v.buycount
+                }
+            })
+            return num;
+        },
+        selsetPrice(){
+            let price =0;
+            this.cartData.forEach(v=>{
+                if(v.isSelected==true){
+                    price+=(v.buycount*v.sell_price)
+                }
+               
+            })
+             return price;
+        }
     }
 }
 

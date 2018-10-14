@@ -59,4 +59,9 @@ export default {
 </script>
 
 <style>
+#loginform input{
+    width: 100%;
+    height: 100%;
+    outline: 0 none;
+}
 </style>

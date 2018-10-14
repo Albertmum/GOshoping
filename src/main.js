@@ -43,6 +43,14 @@ const store = new Vuex.Store({
                 // 有 累加 对象也支持 对象[属性名]
                 state.shopCartData[opt.id] += opt.buyCount;
             }
+        },
+        //定义传过来的值{id:id,newCount}
+        updateBuyCount(state,opt){
+          state.shopCartData[opt.id]=opt.newCount;
+        },
+        //定义传过来的值{id:id}
+        delGood(state,id){
+          delete(state.shopCartData[id]);
         }
     },
     getters: {
@@ -117,9 +125,7 @@ const routes = [{
     },
     {
         path: '/buyCar',
-        // redirect: to=>{
-        //  console.log(this.code)
-        // },
+       
         component: buyCar
 
     },
