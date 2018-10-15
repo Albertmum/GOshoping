@@ -25,7 +25,7 @@
                         <strong>|</strong>
                     </span>
                         <router-link to="/buyCar">
-                            <i class="iconfont icon-cart"></i>购物车(
+                            <i class="iconfont icon-cart" ref='cart'></i>购物车(
                             <span id="shoppingCartCount">
                             <span>{{$store.getters.cartGoodCount}}</span>
                             </span>)

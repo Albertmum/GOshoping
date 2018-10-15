@@ -179,14 +179,12 @@ export default {
              // console.log(res)
              if(res.data.code=='nologin'){
                 this.$message({
-                     message:'您还没有登陆,请先登陆再查看购物车哦!',
+                     message:'登录之后才可以带宝贝回家哦!',
                      type:'warning'
                  });
                 this.code=false;
              }
         });
-
-        
 
     },
     created(){
@@ -199,7 +197,7 @@ export default {
           ids=ids.slice(0,-1)
         
         this.$axios.get('site/comment/getshopcargoods/'+ids).then(res=>{
-           console.log(res);
+          
            res.data.message.forEach(v=>{
             for (let value in this.$store.state.shopCartData) {
                 v.buycount=this.$store.state.shopCartData[v.id]

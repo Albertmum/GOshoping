@@ -13,7 +13,7 @@
                 <div class="wrap-box">
                     <div class="left-925">
                         <div class="goods-box clearfix">
-                            <div class="pic-box" v-if=" images.normal_size.length!=0 " >
+                            <div class="pic-box" v-if=" images.normal_size.length!=0 ">
                                 <ProductZoomer :base-images="images" :base-zoomer-options="zoomerOptions" />
                             </div>
                             <div class="goods-spec">
@@ -54,7 +54,7 @@
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
                                                 <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                                                <button @click="addcart" class="add">加入购物车</button>
+                                                <button ref='toCart' @click="addcart" class="add">加入购物车</button>
                                             </div>
                                         </dd>
                                     </dl>
@@ -93,7 +93,7 @@
                                     </div>
                                     <ul id="commentList" class="list-box">
                                         <p v-show="message.length==0" style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
-                                        <li v-show="message.length!=0" v-for="item2 in message" :key="item2.id">
+                                        <li v-show="message.length!=0" v-for="item2 in message" >
                                             <div class="avatar-box">
                                                 <i class="iconfont icon-user-full"></i>
                                             </div>
@@ -106,7 +106,7 @@
                                             </div>
                                         </li>
                                     </ul>
-                                    <div v-show="message.length=!0" class="page-box" style="margin: 5px 0px 0px 62px;">
+                                    <div v-show="message.length!=0" class="page-box" style="margin: 5px 0px 0px 62px;">
                                         <Page placement='top' @on-change='pageChange' show-elevator show-sizer :total="totalcount" />
                                     </div>
                                 </div>
@@ -139,6 +139,7 @@
                 </div>
             </div>
         </div>
+        <img class="fly-img" ref='flyImg' style="display:none;" :src="imglist.length==0?'':imglist[0].original_path" alt="">
     </div>
 </template>
 <script>
@@ -200,14 +201,14 @@ export default {
                 this.imglist = res.data.message.imglist;
                 this.imglist.forEach(v => {
 
-                   this.images.normal_size.push({
-                        id:v.id,
+                    this.images.normal_size.push({
+                        id: v.id,
                         url: v.thumb_path
 
                     })
 
                 });
-                
+
 
             })
         },
@@ -250,11 +251,29 @@ export default {
             this.getmessage();
         },
         addcart() {
-            console.log(111111)
-            this.$store.commit("addCart", {
+            //通过$.refs 获取图片起始位置
+            let startPos=this.$$(this.$refs.toCart).offset();
+            //获取目标位置,因为目标位置在父组件上面,所有要用this.$parent获取
+            let targetPos=this.$$(this.$parent.$refs.cart).offset();
+            this.$$(this.$refs.flyImg)
+            .stop()
+            .show()
+            .addClass('animate')
+            .css(startPos)
+            .animate({left:targetPos.left,top:targetPos.top},1000,()=>{
+                this.$$(this.$refs.flyImg).hide()
+                .removeClass('animate');
+                //动画走完之后再往购物车添加数据
+                this.$store.commit("addCart", {
                 id: this.goodsid,
                 buyCount: this.buyNum
             });
+
+            })
+            
+
+
+            
         }
 
     },
@@ -307,5 +326,16 @@ export default {
     width: 50px;
     height: 50px;
     float: left;
+}
+.fly-img{
+    height: 60px;
+    width: 60px;
+    position:absolute;
+}
+ /* 移动图片的 动画样式 */
+.fly-img.animate {
+  transform: rotate(3600deg) scale(0.5, 0.5);
+  opacity: 0;
+  transition: transform 1s, opacity 2s;
 }
 </style>

@@ -59,7 +59,7 @@
 
                                     	<!-- 省市联动 -->
 
-										<area-select :level="2" v-model='selected'></area-select>
+										
 
 
 

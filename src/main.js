@@ -13,7 +13,7 @@ import login from './components/login.vue';
 import buyCar from './components/buyCar.vue';
 //引入支付订单的页面
 import payOrder from './components/payOrder.vue';
-//引入订单确认夜店
+//引入订单确认shikou
 import confirmOrder from './components/confirmOrder.vue';
 // 用VUE调用一下use router
 Vue.use(VueRouter);
@@ -23,6 +23,9 @@ import './assets/statics/site/css/style.css';
 
 // 引入懒加载VUE
 import lazyload from "vue-lazyload";
+//引入jquery库
+import $ from 'jquery';
+Vue.prototype.$$=$;
 
 //引入VUEX
 import Vuex from "vuex";
@@ -50,7 +53,9 @@ const store = new Vuex.Store({
         },
         //定义传过来的值{id:id}
         delGood(state,id){
-          delete(state.shopCartData[id]);
+          
+          Vue.delete(state.shopCartData,id);
+
         }
     },
     getters: {
@@ -89,12 +94,15 @@ import 'iview/dist/styles/iview.css';
 Vue.use(iview);
 // 引入axios
 import axios from "axios";
+//将axios放入到vue的原型中去,在各个组件都可以使用了
+Vue.prototype.$axios = axios;
 // //引入moment
 import moment from "moment";
 
 //引入放大镜的插件
 import ProductZoomer from 'vue-product-zoomer'
 Vue.use(ProductZoomer)
+
 //引入省市联动的插件
 import VueAreaLinkage from 'vue-area-linkage';
 import 'vue-area-linkage/dist/index.css';
@@ -102,8 +110,10 @@ Vue.use(VueAreaLinkage)
 
 // 抽取路由基地址
 axios.defaults.baseURL = "http://111.230.232.110:8899/";
+//axios请求默认是不带cookie的,所以要设置携带
+axios.defaults.withCredentials=true;
 
-Vue.prototype.$axios = axios;
+
 
 
 
@@ -146,6 +156,23 @@ const routes = [{
 const router = new VueRouter({
     routes
 })
+//导航守卫
+router.beforeEach((to,from,next)=>{
+    if(to.path=='/payOrder'){
+          axios.get('site/account/islogin').then(res=>{
+            
+             if(res.data.code=='nologin'){
+                Vue.prototype.$message.warning('请先登录再带回家!')
+                router.push('/login')
+             }else{
+                next();
+             }
+        });
+    }else{
+        next();
+    }
+})
+
 
 Vue.config.productionTip = false;
 

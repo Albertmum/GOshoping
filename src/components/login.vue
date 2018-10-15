@@ -46,10 +46,19 @@ export default {
         signIn(){
             this.$axios.post("site/account/login",{user_name:this.inputusername,password:this.inputpassword}).then(res=>{
                 console.log(res);
-                this.$message({
+                
+                if(res.data.message=='登录成功'){
+                    this.$message({
                     message:res.data.message,
                     type:'success'
-                })
+                });
+                    this.$router.push('/payOrder')
+                }else{
+                    this.$message({
+                    message:res.data.message,
+                    type:'warning'
+                });
+                }
             })
         }
    
