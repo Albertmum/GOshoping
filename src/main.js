@@ -25,14 +25,15 @@ import './assets/statics/site/css/style.css';
 import lazyload from "vue-lazyload";
 //引入jquery库
 import $ from 'jquery';
-Vue.prototype.$$=$;
+Vue.prototype.$$ = $;
 
 //引入VUEX
 import Vuex from "vuex";
 Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
-        shopCartData: JSON.parse(localStorage.getItem('cartData')) || {}
+        shopCartData: JSON.parse(localStorage.getItem('cartData')) || {},
+        loginState: false
     },
     mutations: {
         addCart(state, opt) {
@@ -48,14 +49,18 @@ const store = new Vuex.Store({
             }
         },
         //定义传过来的值{id:id,newCount}
-        updateBuyCount(state,opt){
-          state.shopCartData[opt.id]=opt.newCount;
+        updateBuyCount(state, opt) {
+            state.shopCartData[opt.id] = opt.newCount;
         },
         //定义传过来的值{id:id}
-        delGood(state,id){
-          
-          Vue.delete(state.shopCartData,id);
-
+        delGood(state, id) {
+            Vue.delete(state.shopCartData, id);
+        },
+        loginIn(state) {
+            state.loginState = true;
+        },
+        loginOut(state) {
+            state.loginState = false;
         }
     },
     getters: {
@@ -111,7 +116,7 @@ Vue.use(VueAreaLinkage)
 // 抽取路由基地址
 axios.defaults.baseURL = "http://111.230.232.110:8899/";
 //axios请求默认是不带cookie的,所以要设置携带
-axios.defaults.withCredentials=true;
+axios.defaults.withCredentials = true;
 
 
 
@@ -120,34 +125,42 @@ axios.defaults.withCredentials=true;
 //给路由添加规则,
 const routes = [{
         path: '/',
-        component: index
-    },
-    {
-        path: '/index',
-        component: index
-    }, {
-        path: '/goodsinfo/:goodsid',
-        name: 'goodsinfo',
-        component: goodsinfo
-    }, {
-        path: '/login',
-        component: login
-    },
-    {
-        path: '/buyCar',
-       
-        component: buyCar
+        component: index,
+        meta: { name: '首页' }
 
     },
     {
-        path: '/payOrder',
-        component: payOrder
+        path: '/index',
+        component: index,
+        meta: { name: '首页' }
+    }, {
+        path: '/goodsinfo/:goodsid',
+        name: 'goodsinfo',
+        component: goodsinfo,
+        meta: { name: '商品详情' }
+    }, {
+        path: '/login',
+        component: login,
+        meta: { name: '登录' }
     },
     {
-      path:'/confirmOrder',
-      component:confirmOrder
+        path: '/buyCar',
+        component: buyCar,
+        meta: { name: '购物车' }
+
+    },
+    {
+        path: '/payOrder/:ids',
+        component: payOrder,
+        meta: { name: '订单详情' ,checkLogin:true}
+    },
+    {
+        path: '/confirmOrder',
+        component: confirmOrder,
+        meta: { name: '订单确认',checkLogin:true }
     }
 ];
+
 
 
 
@@ -157,18 +170,21 @@ const router = new VueRouter({
     routes
 })
 //导航守卫
-router.beforeEach((to,from,next)=>{
-    if(to.path=='/payOrder'){
-          axios.get('site/account/islogin').then(res=>{
+router.beforeEach((to, from, next) => {
+    // 设置每个页面的title
+    window.document.title = to.meta.name;
+   
+    if (to.meta.checkLogin == true) {
+        axios.get('site/account/islogin').then(res => {
             
-             if(res.data.code=='nologin'){
+            if (res.data.code == 'nologin') {
                 Vue.prototype.$message.warning('请先登录再带回家!')
                 router.push('/login')
-             }else{
+            } else {
                 next();
-             }
+            }
         });
-    }else{
+    } else {
         next();
     }
 })

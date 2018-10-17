@@ -53,7 +53,7 @@
                                     <dl>
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
-                                                <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
+                                                <button  class="buy">立即购买</button>
                                                 <button ref='toCart' @click="addcart" class="add">加入购物车</button>
                                             </div>
                                         </dd>

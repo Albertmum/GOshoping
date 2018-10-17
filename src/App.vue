@@ -10,7 +10,7 @@
                         <a target="_blank" href="#"></a>
                     </div>
                     <div id="menu" class="right-box">
-                        <span >
+                        <span v-show='$store.state.loginState==false'>
                         <router-link to="/login"  >登录
                         <!-- <a href="" class="">登录</a> -->
                         </router-link>
@@ -18,10 +18,10 @@
                         <a href="" class="">注册</a>
                         <strong>|</strong>
                     </span>
-                        <span style="display: none;">
+                        <span v-show='$store.state.loginState!=false' >
                         <a href="" class="">会员中心</a>
                         <strong>|</strong>
-                        <a>退出</a>
+                        <a @click='loginOut' >退出</a>
                         <strong>|</strong>
                     </span>
                         <router-link to="/buyCar">
@@ -153,6 +153,44 @@ export default {
                     .animate({ top: "-48px" }, 300); // move up - hide
             }
         );
+    },
+    data() {
+        return {
+
+        }
+    },
+    methods: {
+        loginOut() {
+                //点击退出弹出的提示细心
+            this.$confirm('确定已经购物完毕,不再逛一下了吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                    //如果确定,则取调用退出接口,提示登出成功
+                this.$axios.get('site/account/logout').then(res => {
+                    console.log(res);
+                    this.$store.commit('loginOut');
+                    if (res.data.status == 0) {
+                        this.$message({
+                            type: 'success',
+                            message: '退出成功!'
+                        });
+
+                    };
+                    this.$router.push('/index')
+                })
+
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消退出!'
+                });
+            });
+
+
+        }
     }
 };
 </script>
@@ -160,11 +198,12 @@ export default {
 .menuhd ul li a span.over {
     background-color: hotpink;
 }
-  .top{
-        padding: 10px;
-        background: rgba(0, 153, 229, .7);
-        color: #fff;
-        text-align: center;
-        border-radius: 2px;
-    }
+
+.top {
+    padding: 10px;
+    background: rgba(0, 153, 229, .7);
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+}
 </style>

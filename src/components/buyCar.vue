@@ -1,13 +1,12 @@
 <template>
-<div>
-  <div class="section">
+    <div>
+        <div class="section">
             <div class="location">
                 <span>当前位置：</span>
                 <a href="/index.html">首页</a> &gt;
                 <a href="/cart.html">购物车</a>
             </div>
         </div>
-
         <div class="section">
             <div class="wrapper">
                 <div class="bg-wrap">
@@ -68,11 +67,10 @@
                                         </div>
                                     </td>
                                 </tr>
-                            
                                 <!-- 如果有数据的时候显示的数据 -->
-                                 <tr v-show="cartData.length!=0" v-for="(item,index) in cartData" :key="item.id">
+                                <tr v-show="cartData.length!=0" v-for="(item,index) in cartData" :key="item.id">
                                     <td width="48" align="center">
-                                        <el-switch v-model="item.isSelected"  active-color="#409eff" inactive-color="#555555">
+                                        <el-switch v-model="item.isSelected" active-color="#409eff" inactive-color="#555555">
                                         </el-switch>
                                     </td>
                                     <td align="left" colspan="2">
@@ -82,18 +80,15 @@
                                     </td>
                                     <td width="220" align="left">{{item.sell_price}}</td>
                                     <td width="104" align="center">
-
-                                        <el-input-number @change='changeCount(item.id,$event)' v-model="item.buycount"  :min="1" :max="99" label="描述文字"></el-input-number>
-
+                                        <el-input-number @change='changeCount(item.id,$event)' v-model="item.buycount" :min="1" :max="99" label="描述文字"></el-input-number>
                                     </td>
                                     <td width="104" align="left">{{item.buycount*item.sell_price}}</td>
                                     <td width="54" align="center">
-                                       <el-button type="text" @click="delOne(item.id)">删除</el-button>
+                                        <el-button type="text" @click="delOne(item.id)">删除</el-button>
                                     </td>
                                 </tr>
                                 <tr>
-                                
-                                <!-- 购物车底部价格综合 -->
+                                    <!-- 购物车底部价格综合 -->
                                 <tr>
                                     <th align="right" colspan="8">
                                         已选择商品
@@ -110,134 +105,142 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" >
-                            <router-link to='/payOrder'>
-                            立即结算
+                            <router-link  :to="'/payOrder/'+buyID">
+                                <button  class="submit">
+                                    立即结算
+                                </button>
                             </router-link>
-                        </button>
                         </div>
                     </div>
                     <!--购物车底部-->
                 </div>
             </div>
         </div>
-
-
-</div>
+    </div>
 </template>
 <script type='text/ecmascript-6'>
-
 export default {
-    name : 'buyCar',
-    data(){
-        return{
+    name: 'buyCar',
+    data() {
+        return {
             //购物车详情
-            cartData:[],
+            cartData: [],
             // 登陆状态
-            code:true
-           
+            code: true,
+            idlist:''
+
         }
     },
-    methods:{
-        changeCount(id,newCount){
+    methods: {
+        changeCount(id, newCount) {
             // console.log(id,newCount)
-            this.$store.commit('updateBuyCount',{
-                id,newCount
+            this.$store.commit('updateBuyCount', {
+                id,
+                newCount
             })
         },
         delOne(id) {
-        this.$confirm('您确定不需要这个宝贝吗?', '温馨提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-            //删除VUEX中的某个值
-            this.$store.commit('delGood',id)
-            //删除页面上的商品
-            this.cartData.forEach((v,i)=>{
-            if(v.id==id){
-                this.cartData.splice(i,1)
-            }
-          })
+            this.$confirm('您确定不需要这个宝贝吗?', '温馨提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                //删除VUEX中的某个值
+                this.$store.commit('delGood', id)
+                //删除页面上的商品
+                this.cartData.forEach((v, i) => {
+                    if (v.id == id) {
+                        this.cartData.splice(i, 1)
+                    }
+                })
 
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-          
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
-      }
-
-    },
-    beforeCreate(){
-         this.$axios.get('site/account/islogin').then(res=>{
-             // console.log(res)
-             if(res.data.code=='nologin'){
                 this.$message({
-                     message:'登录之后才可以带宝贝回家哦!',
-                     type:'warning'
-                 });
-                this.code=false;
-             }
+                    type: 'success',
+                    message: '删除成功!'
+                });
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            });
+        }
+
+    },
+    beforeCreate() {
+        this.$axios.get('site/account/islogin').then(res => {
+            // console.log(res)
+            if (res.data.code == 'nologin') {
+                this.$message({
+                    message: '登录之后才可以带宝贝回家哦!',
+                    type: 'warning'
+                });
+                this.code = false;
+            }
         });
 
     },
-    created(){
-        let ids ='';
-         for( const key in this.$store.state.shopCartData){
-          
-            ids+=key;
-            ids+=','
-         }
-          ids=ids.slice(0,-1)
-        
-        this.$axios.get('site/comment/getshopcargoods/'+ids).then(res=>{
-          
-           res.data.message.forEach(v=>{
-            for (let value in this.$store.state.shopCartData) {
-                v.buycount=this.$store.state.shopCartData[v.id]
-                v.isSelected=true
-            }
+    created() {
+        let ids = '';
+        for (const key in this.$store.state.shopCartData) {
 
-           })
-           this.cartData=res.data.message;
-           // console.log(this.cartData)
-           
+            ids += key;
+            ids += ','
+        }
+        ids = ids.slice(0, -1)
+
+        this.$axios.get('site/comment/getshopcargoods/' + ids).then(res => {
+
+            res.data.message.forEach(v => {
+                for (let value in this.$store.state.shopCartData) {
+                    v.buycount = this.$store.state.shopCartData[v.id]
+                    v.isSelected = true
+                }
+
+            })
+            this.cartData = res.data.message;
+            // console.log(this.cartData)
+
         })
     },
-    watch:{
+    watch: {
 
     },
-    computed:{
-        selsetNum(){
-            let num= 0;
-            this.cartData.forEach(v=>{
-                if(v.isSelected==true){
-                    num+=v.buycount
+    computed: {
+        selsetNum() {
+            let num = 0;
+            this.cartData.forEach(v => {
+                if (v.isSelected == true) {
+                    num += v.buycount
                 }
             })
             return num;
         },
-        selsetPrice(){
-            let price =0;
+        selsetPrice() {
+            let price = 0;
+            this.cartData.forEach(v => {
+                if (v.isSelected == true) {
+                    price += (v.buycount * v.sell_price)
+                }
+
+            })
+            return price;
+        },
+        buyID(){
+            let ids ='';
             this.cartData.forEach(v=>{
                 if(v.isSelected==true){
-                    price+=(v.buycount*v.sell_price)
+                    ids+=v.id;
+                    ids+=',';
                 }
-               
-            })
-             return price;
+                
+            });
+            ids=ids.slice(0,-1);
+            return ids;
         }
     }
 }
-
-
-
 </script>
-<style >
+<style>
 </style>
