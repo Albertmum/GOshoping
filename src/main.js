@@ -19,6 +19,12 @@ import confirmOrder from './components/confirmOrder.vue';
 import paySucess from './components/paySucess.vue';
 //
 import userInfo from './components/userInfo.vue';
+//
+import info from './components/userInfoChildren/info.vue';
+//
+import orderInfo from './components/userInfoChildren/orderInfo.vue';
+//
+import orderList from './components/userInfoChildren/orderList.vue';
 // 用VUE调用一下use router
 Vue.use(VueRouter);
 
@@ -63,11 +69,8 @@ const store = new Vuex.Store({
         delGood(state, id) {
             Vue.delete(state.shopCartData, id);
         },
-        loginIn(state) {
-            state.loginState = true;
-        },
-        loginOut(state) {
-            state.loginState = false;
+        checkLogin(state, status) {
+            state.loginState = status;
         }
     },
     getters: {
@@ -82,7 +85,7 @@ const store = new Vuex.Store({
 })
 
 //在页面关闭或者刷新的时候存储加入购物车的数量和商品ID
-window.onbeforeunload = function() {
+window.onbeforeunload = function () {
     window.localStorage.setItem('cartData', JSON.stringify(store.state.shopCartData))
 }
 
@@ -131,51 +134,74 @@ axios.defaults.withCredentials = true;
 
 //给路由添加规则,
 const routes = [{
-        path: '/',
-        component: index,
-        meta: { name: '首页' }
+    path: '/',
+    component: index,
+    meta: { name: '首页' }
 
-    },
-    {
-        path: '/index',
-        component: index,
-        meta: { name: '首页' }
-    }, {
-        path: '/goodsinfo/:goodsid',
-        name: 'goodsinfo',
-        component: goodsinfo,
-        meta: { name: '商品详情' }
-    }, {
-        path: '/login',
-        component: login,
-        meta: { name: '登录' }
-    },
-    {
-        path: '/buyCar',
-        component: buyCar,
-        meta: { name: '购物车' }
+},
+{
+    path: '/index',
+    component: index,
+    meta: { name: '首页' }
+}, {
+    path: '/goodsinfo/:goodsid',
+    name: 'goodsinfo',
+    component: goodsinfo,
+    meta: { name: '商品详情' }
+}, {
+    path: '/login',
+    component: login,
+    meta: { name: '登录' }
+},
+{
+    path: '/buyCar',
+    component: buyCar,
+    meta: { name: '购物车' }
 
-    },
-    {
-        path: '/payOrder/:ids',
-        component: payOrder,
-        meta: { name: '订单详情' ,checkLogin:true}
-    },
-    {
-        path: '/confirmOrder/:orderid',
-        component: confirmOrder,
-        meta: { name: '订单确认',checkLogin:true }
-    },
-    {
-        path:'/paySucess',
-        component:paySucess,
-        meta:{name:'pay is ok',checkLogin:true}
-    },
-    {
-        path:'/userInfo',
-        component:userInfo,
-        meta:{name:'Yours Message',checkLogin:true}
-    }
+},
+{
+    path: '/payOrder/:ids',
+    component: payOrder,
+    meta: { name: '订单详情', checkLogin: true }
+},
+{
+    path: '/confirmOrder/:orderid',
+    component: confirmOrder,
+    meta: { name: '订单确认', checkLogin: true }
+},
+{
+    path: '/paySucess',
+    component: paySucess,
+    meta: { name: 'pay is ok', checkLogin: true }
+},
+{
+    path: '/userInfo',
+    component: userInfo,
+    meta: { name: 'Yours Message', checkLogin: true },
+    children: [
+        {
+            path: '',
+            component: info,
+            meta: { name: 'info', checkLogin: true }
+        },
+        {
+            path: 'info',
+            component: info,
+            meta: { name: 'info', checkLogin: true }
+        },
+        {
+            path: 'orderInfo/:orderid',
+            component: orderInfo,
+            meta: { name: 'orderInfo', checkLogin: true }
+        },
+        {
+            path: 'orderList',
+            component: orderList,
+            meta: { name: 'orderList', checkLogin: true }
+        },
+
+    ]
+}
 ];
 
 
@@ -190,10 +216,10 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     // 设置每个页面的title
     window.document.title = to.meta.name;
-   
+
     if (to.meta.checkLogin == true) {
         axios.get('site/account/islogin').then(res => {
-            
+
             if (res.data.code == 'nologin') {
                 Vue.prototype.$message.warning('请先登录再带回家!')
                 router.push('/login')
@@ -210,7 +236,7 @@ router.beforeEach((to, from, next) => {
 Vue.config.productionTip = false;
 
 Vue.filter('beautifulTime',
-    function(value) {
+    function (value) {
         return moment(value).format("YYYY年MM月DD日");
     }
 )

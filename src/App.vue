@@ -19,7 +19,8 @@
                         <strong>|</strong>
                     </span>
                         <span v-show='$store.state.loginState!=false' >
-                        <a href="" class="">会员中心</a>
+                            <router-link to="/userInfo">会员中心</router-link>
+                        <!-- <a href="" class=""></a> -->
                         <strong>|</strong>
                         <a @click='loginOut' >退出</a>
                         <strong>|</strong>
@@ -170,7 +171,7 @@ export default {
                     //如果确定,则取调用退出接口,提示登出成功
                 this.$axios.get('site/account/logout').then(res => {
                     console.log(res);
-                    this.$store.commit('loginOut');
+                    this.$store.commit('loginOut',false);
                     if (res.data.status == 0) {
                         this.$message({
                             type: 'success',

@@ -47,8 +47,8 @@ export default {
             this.$axios.post("site/account/login",{user_name:this.inputusername,password:this.inputpassword}).then(res=>{
                 console.log(res);
                     
-                if(res.data.message=='登录成功'){
-                    this.$store.commit('loginIn');
+                if(res.data.status==0){
+                    this.$store.commit('checkLogin',true);
                     this.$router.go(-1);
                     this.$message({
                     message:res.data.message,
