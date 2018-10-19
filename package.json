@@ -19,6 +19,7 @@
     "vue-area-linkage": "^5.0.1",
     "vue-lazyload": "^1.2.6",
     "vue-product-zoomer": "^2.0.11",
+    "vue-qriously": "^1.1.1",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },

@@ -33,6 +33,7 @@
                                         <span>3</span>
                                         支付/确认订单
                                     </div>
+                                  
                                 </li>
                             </ul>
                         </div>
@@ -68,7 +69,7 @@
                                     </td>
                                 </tr>
                                 <!-- 如果有数据的时候显示的数据 -->
-                                <tr v-show="cartData.length!=0" v-for="(item,index) in cartData" :key="item.id">
+                                <tr v-show="cartData.length!=0" v-for="item in cartData" :key="item.id">
                                     <td width="48" align="center">
                                         <el-switch v-model="item.isSelected" active-color="#409eff" inactive-color="#555555">
                                         </el-switch>
@@ -120,127 +121,117 @@
 </template>
 <script type='text/ecmascript-6'>
 export default {
-    name: 'buyCar',
-    data() {
-        return {
-            //购物车详情
-            cartData: [],
-            // 登陆状态
-            code: true,
-            idlist:''
-
-        }
+  name: "buyCar",
+  data() {
+    return {
+      //购物车详情
+      cartData: [],
+      // 登陆状态
+      code: true,
+      idlist: ""
+    };
+  },
+  methods: {
+    changeCount(id, newCount) {
+      // console.log(id,newCount)
+      this.$store.commit("updateBuyCount", {
+        id,
+        newCount
+      });
     },
-    methods: {
-        changeCount(id, newCount) {
-            // console.log(id,newCount)
-            this.$store.commit('updateBuyCount', {
-                id,
-                newCount
-            })
-        },
-        delOne(id) {
-            this.$confirm('您确定不需要这个宝贝吗?', '温馨提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                //删除VUEX中的某个值
-                this.$store.commit('delGood', id)
-                //删除页面上的商品
-                this.cartData.forEach((v, i) => {
-                    if (v.id == id) {
-                        this.cartData.splice(i, 1)
-                    }
-                })
-
-                this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                });
-
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消删除'
-                });
-            });
-        }
-
-    },
-    beforeCreate() {
-        this.$axios.get('site/account/islogin').then(res => {
-            // console.log(res)
-            if (res.data.code == 'nologin') {
-                this.$message({
-                    message: '登录之后才可以带宝贝回家哦!',
-                    type: 'warning'
-                });
-                this.code = false;
+    delOne(id) {
+      this.$confirm("您确定不需要这个宝贝吗?", "温馨提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          //删除VUEX中的某个值
+          this.$store.commit("delGood", id);
+          //删除页面上的商品
+          this.cartData.forEach((v, i) => {
+            if (v.id == id) {
+              this.cartData.splice(i, 1);
             }
-        });
+          });
 
-    },
-    created() {
-        let ids = '';
-        for (const key in this.$store.state.shopCartData) {
-
-            ids += key;
-            ids += ','
-        }
-        ids = ids.slice(0, -1)
-
-        this.$axios.get('site/comment/getshopcargoods/' + ids).then(res => {
-
-            res.data.message.forEach(v => {
-                for (let value in this.$store.state.shopCartData) {
-                    v.buycount = this.$store.state.shopCartData[v.id]
-                    v.isSelected = true
-                }
-
-            })
-            this.cartData = res.data.message;
-            // console.log(this.cartData)
-
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
         })
-    },
-    watch: {
-
-    },
-    computed: {
-        selsetNum() {
-            let num = 0;
-            this.cartData.forEach(v => {
-                if (v.isSelected == true) {
-                    num += v.buycount
-                }
-            })
-            return num;
-        },
-        selsetPrice() {
-            let price = 0;
-            this.cartData.forEach(v => {
-                if (v.isSelected == true) {
-                    price += (v.buycount * v.sell_price)
-                }
-
-            })
-            return price;
-        },
-        buyID(){
-            let ids ='';
-            this.cartData.forEach(v=>{
-                if(v.isSelected==true){
-                    ids+=v.id;
-                    ids+=',';
-                }
-                
-            });
-            ids=ids.slice(0,-1);
-            return ids;
-        }
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     }
-}
+  },
+  beforeCreate() {
+    this.$axios.get("site/account/islogin").then(res => {
+      // console.log(res)
+      if (res.data.code == "nologin") {
+        this.$message({
+          message: "登录之后才可以带宝贝回家哦!",
+          type: "warning"
+        });
+        this.code = false;
+      }
+    });
+  },
+  created() {
+    let ids = "";
+    for (const key in this.$store.state.shopCartData) {
+      ids += key;
+      ids += ",";
+    }
+    ids = ids.slice(0, -1);
+
+    this.$axios.get("site/comment/getshopcargoods/" + ids).then(res => {
+      res.data.message.forEach(v => {
+        for (let value in this.$store.state.shopCartData) {
+          v.buycount = this.$store.state.shopCartData[v.id];
+          v.isSelected = true;
+        }
+      });
+      this.cartData = res.data.message;
+      // console.log(this.cartData)
+    });
+  },
+  watch: {},
+  computed: {
+    selsetNum() {
+      let num = 0;
+      this.cartData.forEach(v => {
+        if (v.isSelected == true) {
+          num += v.buycount;
+        }
+      });
+      return num;
+    },
+    selsetPrice() {
+      let price = 0;
+      this.cartData.forEach(v => {
+        if (v.isSelected == true) {
+          price += v.buycount * v.sell_price;
+        }
+      });
+      return price;
+    },
+    buyID() {
+      let ids = "";
+      this.cartData.forEach(v => {
+        if (v.isSelected == true) {
+          ids += v.id;
+          ids += ",";
+        }
+      });
+      ids = ids.slice(0, -1);
+      return ids;
+    }
+  }
+};
 </script>
 <style>
 </style>

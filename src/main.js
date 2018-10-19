@@ -15,6 +15,10 @@ import buyCar from './components/buyCar.vue';
 import payOrder from './components/payOrder.vue';
 //引入订单确认shikou
 import confirmOrder from './components/confirmOrder.vue';
+//
+import paySucess from './components/paySucess.vue';
+//
+import userInfo from './components/userInfo.vue';
 // 用VUE调用一下use router
 Vue.use(VueRouter);
 
@@ -26,6 +30,9 @@ import lazyload from "vue-lazyload";
 //引入jquery库
 import $ from 'jquery';
 Vue.prototype.$$ = $;
+//join code create
+import vueqriously from 'vue-qriously';
+Vue.use(vueqriously);
 
 //引入VUEX
 import Vuex from "vuex";
@@ -155,9 +162,19 @@ const routes = [{
         meta: { name: '订单详情' ,checkLogin:true}
     },
     {
-        path: '/confirmOrder',
+        path: '/confirmOrder/:orderid',
         component: confirmOrder,
         meta: { name: '订单确认',checkLogin:true }
+    },
+    {
+        path:'/paySucess',
+        component:paySucess,
+        meta:{name:'pay is ok',checkLogin:true}
+    },
+    {
+        path:'/userInfo',
+        component:userInfo,
+        meta:{name:'Yours Message',checkLogin:true}
     }
 ];
 

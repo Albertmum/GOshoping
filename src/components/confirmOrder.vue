@@ -21,13 +21,13 @@
                                     <div class="el-col el-col-12">
                                         <dl class="form-group">
                                             <dt>订 单 号：</dt>
-                                            <dd>BD2018012523954579</dd>
+                                            <dd>{{userInfo.order_no}}</dd>
                                         </dl>
                                     </div>
                                     <div class="el-col el-col-12">
                                         <dl class="form-group">
                                             <dt>收货人姓名：</dt>
-                                            <dd>张三</dd>
+                                            <dd>{{userInfo.accept_name}}</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -35,14 +35,14 @@
                                     <div class="el-col el-col-12">
                                         <dl class="form-group">
                                             <dt>送货地址：</dt>
-                                            <dd>河北省,石家庄市,新华区
+                                            <dd>{{userInfo.area}}
                                             </dd>
                                         </dl>
                                     </div>
                                     <div class="el-col el-col-12">
                                         <dl class="form-group">
                                             <dt>手机号码：</dt>
-                                            <dd>13811111111</dd>
+                                            <dd>{{userInfo.mobile}}</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -50,7 +50,7 @@
                                     <div class="el-col el-col-12">
                                         <dl class="form-group">
                                             <dt>支付金额：</dt>
-                                            <dd>10408 元</dd>
+                                            <dd>{{userInfo.order_amount}} 元</dd>
                                         </dl>
                                     </div>
                                     <div class="el-col el-col-12">
@@ -64,14 +64,14 @@
                                         <div class="el-col el-col-12">
                                                 <dl class="form-group">
                                                     <dt>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</dt>
-                                                    <dd>请尽快发货</dd>
+                                                    <dd>{{userInfo.message}}</dd>
                                                 </dl>
                                             </div>
                                 </div>
                             </div>
                             <div class="el-col el-col-6">
                                 <div id="container2">
-                                    <canvas width="300" height="300"></canvas>
+                                     <qriously :value="'http://111.230.232.110:8899/site/validate/pay/alipay/'+orderid" :size="200" />
                                 </div>
                             </div>
                         </div>
@@ -84,6 +84,40 @@
 
 <script>
 	export default{
-		name:'confirmOrder'
+
+        name:'confirmOrder',
+        data(){
+            return{
+                orderid:'',
+                userInfo:[],
+                intervID:''
+            }
+        },
+        methods:{
+           
+        },
+        created(){
+            this.orderid=this.$route.params.orderid;
+            this.$axios.get('site/validate/order/getorder/'+this.orderid).then(res=>{
+                console.log(res);
+                this.userInfo=res.data.message[0];
+            });
+            
+            this.intervID=setInterval(()=>{
+                this.$axios.get('site/validate/order/getorder/'+this.orderid).then(res=>{
+                    console.log(res);
+                    if(res.data.status==2){
+                        this.$message.success('The order is alredy!')
+                        this.$route.push('/paySucess');
+                    }
+                })
+            },5000)
+        },
+        destroyed(){
+            clearInterval(this.intervID);
+        }
 	}
 </script>
+<style>
+
+</style>
